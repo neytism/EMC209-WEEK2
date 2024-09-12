@@ -6,24 +6,30 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using GNW.InputData;
 using GNW.Projectile;
+using GNW.UIManager;
 using GNW.GameManager;
 
 namespace GNW.PlayerController
 {
     public class Player : NetworkBehaviour
     {
+        
+        public static event Action<bool> OnFireCooldownEvent;
+        
         [Networked] public Color playerColor { get; set; }
         [SerializeField] private float speed = 2f;
         
         [SerializeField] private BulletProjectile _bulletPrefab;
         [SerializeField] private float _fireRate = 0.1f;
         [Networked] private TickTimer FireRateTT { get; set; }
+        private bool _canShoot = true;
         
         private Vector3 _firePoint = Vector3.forward * 2;
         
         private NetworkCharacterController _cc;
         private Renderer _ren;
         private GNW.GameManager.GameManager _gm;
+        
 
         private void Awake()
         {
@@ -65,6 +71,8 @@ namespace GNW.PlayerController
            MoveHandler();
            ShootHandler();
         }
+        
+        
 
         public void MoveHandler()
         {
@@ -81,6 +89,12 @@ namespace GNW.PlayerController
         public void ShootHandler()
         {
             if (!GetInput(out NetworkInputData data)) return;
+            
+            if (HasInputAuthority && FireRateTT.ExpiredOrNotRunning(Runner) != _canShoot)
+            {
+                _canShoot = FireRateTT.ExpiredOrNotRunning(Runner);
+                OnFireCooldownEvent?.Invoke(_canShoot); 
+            }
             
             //if (!HasInputAuthority || !FireRateTT.ExpiredOrNotRunning(Runner)) return;
             if (!FireRateTT.ExpiredOrNotRunning(Runner)) return;
@@ -108,6 +122,7 @@ namespace GNW.PlayerController
                 }
             }
         }
+        
 
         private Player FindNearestPlayer()
         {
