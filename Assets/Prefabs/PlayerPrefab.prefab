@@ -198,6 +198,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerColor: {r: 0, g: 0, b: 0, a: 0}
   speed: 5
+  _bulletPrefab: {fileID: 1391346048231089016, guid: 5732f2f25032d2048a67a6dedfdd88c5,
+    type: 3}
+  _fireRate: 1
 --- !u!114 &6457342809765359983
 MonoBehaviour:
   m_ObjectHideFlags: 0

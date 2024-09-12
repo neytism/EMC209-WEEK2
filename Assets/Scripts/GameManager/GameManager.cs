@@ -7,9 +7,10 @@ using Fusion.Sockets;
 using Unity.Mathematics;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
-using GNW2.InputData;
+using GNW.InputData;
+using GNW.UIManager;
 
-namespace GNW2.GameManager
+namespace GNW.GameManager
 {
     public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
     {
@@ -17,6 +18,19 @@ namespace GNW2.GameManager
 
         [SerializeField] private NetworkPrefabRef _playerPrefab;
         private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
+
+        public Dictionary<PlayerRef, NetworkObject> SpawnedPlayers => _spawnedPlayers;
+
+
+        private bool _isJumpButtonPressed;
+        private bool _isShootButtonPressed;
+
+        private void Update()
+        {
+            _isJumpButtonPressed = Input.GetKey(KeyCode.Space);
+            _isShootButtonPressed = Input.GetMouseButton(0);
+            //_isMouseButton0Pressed = _isMouseButton0Pressed | Input.GetMouseButton(0);
+        }
 
         #region NetworkRunner Callbacks
 
@@ -52,8 +66,10 @@ namespace GNW2.GameManager
             if (Input.GetKey(KeyCode.A)) data.Direction += Vector3.left;
             if (Input.GetKey(KeyCode.S)) data.Direction += Vector3.back;
             if (Input.GetKey(KeyCode.D)) data.Direction += Vector3.right;
-            if (Input.GetKey(KeyCode.Space)) data.Jump = true;
 
+            data.buttons.Set(NetworkInputData.JUMPBUTTON, _isJumpButtonPressed);
+            data.buttons.Set(NetworkInputData.SHOOTBUTTON, _isShootButtonPressed);
+            
             input.Set(data);
         }
         public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
@@ -99,21 +115,34 @@ namespace GNW2.GameManager
             
         }
 
-        private void OnGUI()
+        private void OnEnable()
         {
-            if (_runner == null)
-            {
-                if (GUI.Button(new Rect(0,0,200,40), "Host"))
-                {
-                    StartGame(GameMode.Host);
-                }
-                
-                if (GUI.Button(new Rect(0,45,200,40), "Client"))
-                {
-                    StartGame(GameMode.Client);
-                }
-            }
+            UIManager.UIManager.OnHostButtonEvent += StartGame;
+            UIManager.UIManager.OnClientButtonEvent += StartGame;
         }
+
+        private void OnDisable()
+        {
+            UIManager.UIManager.OnHostButtonEvent -= StartGame;
+            UIManager.UIManager.OnClientButtonEvent -= StartGame;
+        }
+
+
+        // private void OnGUI()
+        // {
+        //     if (_runner == null)
+        //     {
+        //         if (GUI.Button(new Rect(0,0,200,40), "Host"))
+        //         {
+        //             StartGame(GameMode.Host);
+        //         }
+        //         
+        //         if (GUI.Button(new Rect(0,45,200,40), "Client"))
+        //         {
+        //             StartGame(GameMode.Client);
+        //         }
+        //     }
+        // }
     }
 
 }

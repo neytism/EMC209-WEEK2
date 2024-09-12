@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-namespace GNW2.CamController
+namespace GNW.CamController
 {
     public class PlayerCamera : NetworkBehaviour
     {
