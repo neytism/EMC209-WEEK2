@@ -11,7 +11,7 @@ using GNW.GameManager;
 
 namespace GNW.PlayerController
 {
-    public class Player : NetworkBehaviour
+    public class Player : NetworkBehaviour, ICombat
     {
         
         public static event Action<bool> OnFireCooldownEvent;
@@ -29,6 +29,8 @@ namespace GNW.PlayerController
         private NetworkCharacterController _cc;
         private Renderer _ren;
         private GNW.GameManager.GameManager _gm;
+
+        public event Action<int> OnTakeDamageEvent; 
         
 
         private void Awake()
@@ -147,8 +149,10 @@ namespace GNW.PlayerController
         }
 
 
-        
-        
+        public void TakeDamage(int dmg)
+        {
+            OnTakeDamageEvent?.Invoke(dmg);
+        }
     }
 }
 

@@ -117,14 +117,12 @@ namespace GNW.GameManager
 
         private void OnEnable()
         {
-            UIManager.UIManager.OnHostButtonEvent += StartGame;
-            UIManager.UIManager.OnClientButtonEvent += StartGame;
+            UIManager.UIManager.OnStartGameButtonEvent += StartGame;
         }
 
         private void OnDisable()
         {
-            UIManager.UIManager.OnHostButtonEvent -= StartGame;
-            UIManager.UIManager.OnClientButtonEvent -= StartGame;
+            UIManager.UIManager.OnStartGameButtonEvent -= StartGame;
         }
 
 

@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
+using GNW.PlayerController;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace GNW.Projectile
@@ -9,7 +12,10 @@ namespace GNW.Projectile
     {
         [SerializeField] private float _bulletSpeed = 10f;
         [SerializeField] private float _life = 5f;
+        [SerializeField] private int _dmg = 5;
+        [SerializeField] private ParticleSystem _hitFX;
         [Networked] private TickTimer LifeTT { get; set; }
+        
         [Networked] private Color _bulletColor { get; set; }
         
         [SerializeField] private Renderer _ren;
@@ -59,6 +65,34 @@ namespace GNW.Projectile
         public override void Render()
         {
             _ren.material.color = _bulletColor;
+        }
+
+        private void OnCollisionEnter(Collision other)
+        {
+            if (Object.HasStateAuthority)
+            {
+                var combatInterference = other.collider.GetComponent<Player>();
+                if (combatInterference != null)
+                {
+                    combatInterference.TakeDamage(_dmg);
+                }
+                
+                
+                RPC_SpawnHitFX(combatInterference.transform.position);
+                
+                Runner.Despawn(Object);
+
+
+            }
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_SpawnHitFX(Vector3 pos)
+        {
+            if (_hitFX == null) return;
+
+            Instantiate(_hitFX, pos, quaternion.identity);
+
         }
     }
 }

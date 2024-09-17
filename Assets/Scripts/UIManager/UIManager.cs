@@ -12,28 +12,26 @@ namespace GNW.UIManager
 {
     public class UIManager : MonoBehaviour
     {
-        public static event Action<GameMode> OnHostButtonEvent;
-
-        public static event Action<GameMode> OnClientButtonEvent;
-
-
-
+        public static event Action<GameMode> OnStartGameButtonEvent;
+        
         [SerializeField] private GameObject _startHolder;
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
+        [SerializeField] private Button _autoStartutton;
         [SerializeField] private TextMeshProUGUI _fireCooldownUI;
+        [SerializeField] private TMP_InputField _input;
 
-        private void Start()
+        private void Awake()
         {
-            _hostButton.onClick.AddListener(() => OnHostButtonEvent?.Invoke(GameMode.Host));
-            _clientButton.onClick.AddListener(() => OnClientButtonEvent?.Invoke(GameMode.Client));
+            _hostButton.onClick.AddListener(() => OnStartGameButtonEvent?.Invoke(GameMode.Host));
+            _clientButton.onClick.AddListener(() => OnStartGameButtonEvent?.Invoke(GameMode.Client));
+            _autoStartutton.onClick.AddListener(() => OnStartGameButtonEvent?.Invoke(GameMode.AutoHostOrClient));
             
         }
 
         private void OnEnable()
         {
-            OnHostButtonEvent += HideStartButtons;
-            OnClientButtonEvent += HideStartButtons;
+            OnStartGameButtonEvent += HideStartButtons;
             Player.OnFireCooldownEvent += UpdateFireCooldownUI;
         }
 
