@@ -8,7 +8,7 @@ namespace GNW.CamController
     public class PlayerCamera : NetworkBehaviour
     {
         [SerializeField] private Transform cameraTarget;
-        [SerializeField] private Vector3 cameraOffset = new Vector3(0, 5, -10);
+        [SerializeField] private Vector3 cameraOffset = new Vector3(0, 10, -5);
         private Camera _mainCamera;
 
         [SerializeField] private float mouseSensitivity = 100f;

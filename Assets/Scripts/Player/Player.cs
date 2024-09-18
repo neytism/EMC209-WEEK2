@@ -6,17 +6,16 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using GNW.InputData;
 using GNW.Projectile;
-using GNW.UIManager;
-using GNW.GameManager;
+using TMPro;
 
 namespace GNW.PlayerController
 {
     public class Player : NetworkBehaviour, ICombat
     {
-        
         public static event Action<bool> OnFireCooldownEvent;
         
-        [Networked] public Color playerColor { get; set; }
+        [Networked] public string PlayerName { get; set; }
+        [Networked] public Color PlayerColor { get; set; }
         [SerializeField] private float speed = 2f;
         
         [SerializeField] private BulletProjectile _bulletPrefab;
@@ -30,7 +29,10 @@ namespace GNW.PlayerController
         private Renderer _ren;
         private GNW.GameManager.GameManager _gm;
 
+        private bool _initInfoSynced = false;
+
         public event Action<int> OnTakeDamageEvent; 
+        public event Action OnPlayerSpawnEvent;
         
 
         private void Awake()
@@ -44,28 +46,30 @@ namespace GNW.PlayerController
         {
             if (HasStateAuthority) // only the server set the color
             {
-                playerColor = new Color(
+                PlayerColor = new Color(
                     Random.Range(0f, 1f),
                     Random.Range(0f, 1f),
                     Random.Range(0f, 1f),
                     1f
                 );
+                
+                OnPlayerSpawnEvent?.Invoke();
+
             }
             
-            UpdateColor();
         }
 
-        private void UpdateColor()
+        private void UpdateInfo()
         {
-            if (_ren != null)
+            if (_ren != null && !_initInfoSynced)
             {
-                _ren.material.color = playerColor;
+                _ren.material.color = PlayerColor;
             }
         }
 
         public override void Render()
         {
-            UpdateColor();
+            UpdateInfo();
         }
 
         public override void FixedUpdateNetwork()

@@ -67,17 +67,34 @@ namespace GNW.Projectile
             _ren.material.color = _bulletColor;
         }
 
-        private void OnCollisionEnter(Collision other)
+        // private void OnCollisionEnter(Collision other)
+        // {
+        //     if (Object.HasStateAuthority)
+        //     {
+        //         var combatInterference = other.collider.GetComponent<Player>();
+        //         if (combatInterference != null)
+        //         {
+        //             combatInterference.TakeDamage(_dmg);
+        //         }
+        //
+        //         RPC_SpawnHitFX(combatInterference.transform.position);
+        //         
+        //         Runner.Despawn(Object);
+        //
+        //
+        //     }
+        // }
+
+        private void OnTriggerEnter(Collider other)
         {
             if (Object.HasStateAuthority)
             {
-                var combatInterference = other.collider.GetComponent<Player>();
+                var combatInterference = other.GetComponent<Player>();
                 if (combatInterference != null)
                 {
                     combatInterference.TakeDamage(_dmg);
                 }
-                
-                
+
                 RPC_SpawnHitFX(combatInterference.transform.position);
                 
                 Runner.Despawn(Object);

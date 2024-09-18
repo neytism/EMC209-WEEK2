@@ -135,7 +135,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -156,6 +156,7 @@ MonoBehaviour:
   _bulletSpeed: 10
   _life: 5
   _dmg: 5
+  _hitFX: {fileID: 0}
   _ren: {fileID: 7102522656693077984}
 --- !u!114 &353840293636573868
 MonoBehaviour:

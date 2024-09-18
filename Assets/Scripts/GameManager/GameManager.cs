@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 using GNW.InputData;
+using GNW.PlayerController;
 using GNW.UIManager;
 
 namespace GNW.GameManager
@@ -24,6 +25,10 @@ namespace GNW.GameManager
 
         private bool _isJumpButtonPressed;
         private bool _isShootButtonPressed;
+        
+        
+        private UIManager.UIManager _um;
+
 
         private void Update()
         {
@@ -44,8 +49,9 @@ namespace GNW.GameManager
                 Vector3 customLocation = new Vector3(runner.SessionInfo.PlayerCount, 0, 0);
                 NetworkObject playerNetworkObject = runner.Spawn(_playerPrefab, customLocation, quaternion.identity);
                 playerNetworkObject.AssignInputAuthority(player);
-                
+
                 _spawnedPlayers.Add(player, playerNetworkObject);
+                
             }
         }
 
@@ -91,6 +97,7 @@ namespace GNW.GameManager
 
         async void StartGame(GameMode mode)
         {
+            
             // lets fusion know that we will be sending input
             _runner = this.gameObject.AddComponent<NetworkRunner>();
             _runner.ProvideInput = true;

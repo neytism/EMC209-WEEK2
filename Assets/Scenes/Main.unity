@@ -157,7 +157,7 @@ MonoBehaviour:
   _clientButton: {fileID: 1589441981}
   _autoStartutton: {fileID: 503074916}
   _fireCooldownUI: {fileID: 1431950199}
-  _input: {fileID: 0}
+  _inputName: {fileID: 1272919864}
 --- !u!4 &65801329
 Transform:
   m_ObjectHideFlags: 0

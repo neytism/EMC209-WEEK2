@@ -10,7 +10,7 @@ using GNW.PlayerController;
 
 namespace GNW.UIManager
 {
-    public class UIManager : MonoBehaviour
+    public class UIManager : NetworkBehaviour
     {
         public static event Action<GameMode> OnStartGameButtonEvent;
         
@@ -19,13 +19,13 @@ namespace GNW.UIManager
         [SerializeField] private Button _clientButton;
         [SerializeField] private Button _autoStartutton;
         [SerializeField] private TextMeshProUGUI _fireCooldownUI;
-        [SerializeField] private TMP_InputField _input;
+        [SerializeField] private TMP_InputField _inputName;
 
         private void Awake()
         {
-            _hostButton.onClick.AddListener(() => OnStartGameButtonEvent?.Invoke(GameMode.Host));
-            _clientButton.onClick.AddListener(() => OnStartGameButtonEvent?.Invoke(GameMode.Client));
-            _autoStartutton.onClick.AddListener(() => OnStartGameButtonEvent?.Invoke(GameMode.AutoHostOrClient));
+            _hostButton.onClick.AddListener(() => StartGame(GameMode.Host));
+            _clientButton.onClick.AddListener(() => StartGame(GameMode.Client));
+            _autoStartutton.onClick.AddListener(() => StartGame(GameMode.AutoHostOrClient));
             
         }
 
@@ -34,11 +34,21 @@ namespace GNW.UIManager
             OnStartGameButtonEvent += HideStartButtons;
             Player.OnFireCooldownEvent += UpdateFireCooldownUI;
         }
-
+        
+        private void StartGame(GameMode mode)
+        {
+            OnStartGameButtonEvent?.Invoke(mode); 
+        }
         private void HideStartButtons(GameMode m)
         {
             _startHolder.gameObject.SetActive(false);
         }
+        
+        public string GetPlayerName()
+        {
+            return _inputName.text.Trim();
+        }
+
         
         private void UpdateFireCooldownUI(bool canShoot)
         {
