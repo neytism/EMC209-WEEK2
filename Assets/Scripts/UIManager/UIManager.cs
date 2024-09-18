@@ -10,7 +10,7 @@ using GNW.PlayerController;
 
 namespace GNW.UIManager
 {
-    public class UIManager : NetworkBehaviour
+    public class UIManager : MonoBehaviour
     {
         public static event Action<GameMode> OnStartGameButtonEvent;
         
@@ -38,7 +38,20 @@ namespace GNW.UIManager
         private void StartGame(GameMode mode)
         {
             OnStartGameButtonEvent?.Invoke(mode); 
+    
+            if (mode == GameMode.Host)
+            {
+                var player = FindObjectOfType<Player>();
+                player.SetPlayerName(GetPlayerName());
+            }
+            else if (mode == GameMode.Client)
+            {
+                var player = FindObjectOfType<Player>();
+                player.SetPlayerName(GetPlayerName());
+            }
         }
+
+        
         private void HideStartButtons(GameMode m)
         {
             _startHolder.gameObject.SetActive(false);
@@ -46,7 +59,7 @@ namespace GNW.UIManager
         
         public string GetPlayerName()
         {
-            return _inputName.text.Trim();
+            return _inputName.text;
         }
 
         

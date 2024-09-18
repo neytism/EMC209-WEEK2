@@ -430,7 +430,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &3660317493739543638
 MonoBehaviour:
@@ -530,6 +530,7 @@ GameObject:
   - component: {fileID: 3147987515196613313}
   - component: {fileID: 6457342809765359983}
   - component: {fileID: 5960511930988158068}
+  - component: {fileID: -2821609158236757853}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -576,6 +577,7 @@ MonoBehaviour:
   - {fileID: 3147987515196613313}
   - {fileID: 6457342809765359983}
   - {fileID: 5960511930988158068}
+  - {fileID: -2821609158236757853}
 --- !u!143 &5618194841298431717
 CharacterController:
   m_ObjectHideFlags: 0
@@ -669,6 +671,19 @@ MonoBehaviour:
   _hitFX: {fileID: 258820182514009003, guid: 743947ca0ca8d9841811c6ffbe2ed96b, type: 3}
   _deathFX: {fileID: 5059476906193488445, guid: 9293193789087c9458a669c4c7e85247,
     type: 3}
+--- !u!114 &-2821609158236757853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6577409754905948976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a37d63d1ebc1914daca7bb9b1ef245a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameTagText: {fileID: 1331238836012892802}
 --- !u!1 &8507560660859269220
 GameObject:
   m_ObjectHideFlags: 0

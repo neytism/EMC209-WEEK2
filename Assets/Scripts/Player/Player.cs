@@ -30,9 +30,11 @@ namespace GNW.PlayerController
         private GNW.GameManager.GameManager _gm;
 
         private bool _initInfoSynced = false;
+        
+        private ChatUI _chatUI;
 
         public event Action<int> OnTakeDamageEvent; 
-        public event Action OnPlayerSpawnEvent;
+        public static event Action<string, NetworkId> OnPlayerSpawnEvent;
         
 
         private void Awake()
@@ -40,6 +42,16 @@ namespace GNW.PlayerController
             _cc = GetComponent<NetworkCharacterController>();
             _ren = GetComponentInChildren<Renderer>();
             _gm = FindObjectOfType<GNW.GameManager.GameManager>();
+            
+            _chatUI = FindObjectOfType<ChatUI>();
+            if (_chatUI != null)
+            {
+                _chatUI.OnMesageSent += SendChatMessage;
+            }
+            else
+            {
+                Debug.LogWarning("No Chat Found");
+            }
         }
 
         public override void Spawned()
@@ -52,18 +64,31 @@ namespace GNW.PlayerController
                     Random.Range(0f, 1f),
                     1f
                 );
-                
-                OnPlayerSpawnEvent?.Invoke();
+
+                PlayerName = "Player: " + Random.Range(0, 1000);
 
             }
             
         }
+        
+        public void SetPlayerName(string name)
+        {
+            if (HasStateAuthority) // Only allow the player to set their own name
+            {
+                PlayerName = name;
+                // Update the name tag immediately
+                GetComponent<NameTag>().UpdateNameTag(PlayerName);
+            }
+        }
+
 
         private void UpdateInfo()
         {
             if (_ren != null && !_initInfoSynced)
             {
                 _ren.material.color = PlayerColor;
+                GetComponent<NameTag>().UpdateNameTag(PlayerName);
+                _initInfoSynced = true;
             }
         }
 
@@ -157,6 +182,12 @@ namespace GNW.PlayerController
         {
             OnTakeDamageEvent?.Invoke(dmg);
         }
+        
+        private void SendChatMessage(string message)
+        {
+            _chatUI.RPC_AddToChatHistory(PlayerName + ": " + message);
+        }
+        
     }
 }
 

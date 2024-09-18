@@ -61,5 +61,6 @@ namespace GNW
             NetworkedCurrentHealth = updatedHealth; // Update the current health on all clients
             UpdateHealthBar(); // Update the UI health bar
         }
+
     }
 }

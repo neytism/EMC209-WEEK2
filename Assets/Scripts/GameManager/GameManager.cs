@@ -133,21 +133,7 @@ namespace GNW.GameManager
         }
 
 
-        // private void OnGUI()
-        // {
-        //     if (_runner == null)
-        //     {
-        //         if (GUI.Button(new Rect(0,0,200,40), "Host"))
-        //         {
-        //             StartGame(GameMode.Host);
-        //         }
-        //         
-        //         if (GUI.Button(new Rect(0,45,200,40), "Client"))
-        //         {
-        //             StartGame(GameMode.Client);
-        //         }
-        //     }
-        // }
+        
     }
 
 }
