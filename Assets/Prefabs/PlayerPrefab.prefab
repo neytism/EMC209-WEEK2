@@ -666,6 +666,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bar: {fileID: 6350558740864279407}
+  _hitFX: {fileID: 258820182514009003, guid: 743947ca0ca8d9841811c6ffbe2ed96b, type: 3}
+  _deathFX: {fileID: 5059476906193488445, guid: 9293193789087c9458a669c4c7e85247,
+    type: 3}
 --- !u!1 &8507560660859269220
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,6 +14,13 @@ namespace GNW
 
         private Player _currentPlayer;
 
+        public static event Action<Vector3> OnHitEvent; 
+        public static event Action<Vector3> OnDeathEvent; 
+
+
+        [SerializeField] private ParticleSystem _hitFX;
+        [SerializeField] private ParticleSystem _deathFX;
+
         private void Start()
         {
             NetworkedCurrentHealth = _maxHealth;
@@ -26,8 +33,17 @@ namespace GNW
             if (HasStateAuthority)
             {
                 NetworkedCurrentHealth -= dmg;
-                RPC_UpdateHealthBar(NetworkedCurrentHealth);    
+                RPC_UpdateHealthBar(NetworkedCurrentHealth);
+                OnHitEvent?.Invoke(transform.position);
+
+                if (NetworkedCurrentHealth <= 0)
+                {
+                    OnDeathEvent?.Invoke(transform.position);
+                    Runner.Despawn(Object);
+                }
             }
+            
+            
         }
 
         
@@ -35,6 +51,9 @@ namespace GNW
         {
             _bar.fillAmount = (float)NetworkedCurrentHealth / (float)_maxHealth;
         }
+        
+        
+        
         
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_UpdateHealthBar(int updatedHealth)

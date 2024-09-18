@@ -13,7 +13,6 @@ namespace GNW.Projectile
         [SerializeField] private float _bulletSpeed = 10f;
         [SerializeField] private float _life = 5f;
         [SerializeField] private int _dmg = 5;
-        [SerializeField] private ParticleSystem _hitFX;
         [Networked] private TickTimer LifeTT { get; set; }
         
         [Networked] private Color _bulletColor { get; set; }
@@ -95,22 +94,13 @@ namespace GNW.Projectile
                     combatInterference.TakeDamage(_dmg);
                 }
 
-                RPC_SpawnHitFX(combatInterference.transform.position);
-                
                 Runner.Despawn(Object);
 
 
             }
         }
 
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_SpawnHitFX(Vector3 pos)
-        {
-            if (_hitFX == null) return;
-
-            Instantiate(_hitFX, pos, quaternion.identity);
-
-        }
+       
     }
 }
 
