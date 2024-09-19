@@ -37,18 +37,8 @@ namespace GNW.UIManager
         
         private void StartGame(GameMode mode)
         {
-            OnStartGameButtonEvent?.Invoke(mode); 
-    
-            if (mode == GameMode.Host)
-            {
-                var player = FindObjectOfType<Player>();
-                player.SetPlayerName(GetPlayerName());
-            }
-            else if (mode == GameMode.Client)
-            {
-                var player = FindObjectOfType<Player>();
-                player.SetPlayerName(GetPlayerName());
-            }
+            GlobalManagers.Instance.GameManager.SetPlayerNickname(GetPlayerName());
+            OnStartGameButtonEvent?.Invoke(mode);
         }
 
         

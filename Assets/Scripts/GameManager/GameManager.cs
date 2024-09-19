@@ -10,6 +10,7 @@ using Random = UnityEngine.Random;
 using GNW.InputData;
 using GNW.PlayerController;
 using GNW.UIManager;
+using Object = System.Object;
 
 namespace GNW.GameManager
 {
@@ -21,13 +22,13 @@ namespace GNW.GameManager
         private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
 
         public Dictionary<PlayerRef, NetworkObject> SpawnedPlayers => _spawnedPlayers;
-
-
         private bool _isJumpButtonPressed;
         private bool _isShootButtonPressed;
         
         
         private UIManager.UIManager _um;
+
+        public string LocalPlayerName { get; private set; }
 
 
         private void Update()
@@ -47,8 +48,9 @@ namespace GNW.GameManager
             if (runner.IsServer)
             {
                 Vector3 customLocation = new Vector3(runner.SessionInfo.PlayerCount, 0, 0);
-                NetworkObject playerNetworkObject = runner.Spawn(_playerPrefab, customLocation, quaternion.identity);
+                NetworkObject playerNetworkObject = runner.Spawn(_playerPrefab, customLocation, quaternion.identity, player);
                 playerNetworkObject.AssignInputAuthority(player);
+                runner.SetPlayerObject(player, playerNetworkObject);
 
                 _spawnedPlayers.Add(player, playerNetworkObject);
                 
@@ -61,6 +63,7 @@ namespace GNW.GameManager
             {
                 runner.Despawn(playerNetworkObject);
                 _spawnedPlayers.Remove(player);
+                
             }
         }
 
@@ -94,6 +97,11 @@ namespace GNW.GameManager
         public void OnSceneLoadStart(NetworkRunner runner) {}
 
         #endregion
+
+        public void SetPlayerNickname(string str)
+        {
+            LocalPlayerName = str;
+        }
 
         async void StartGame(GameMode mode)
         {

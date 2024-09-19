@@ -14,7 +14,8 @@ namespace GNW.PlayerController
     {
         public static event Action<bool> OnFireCooldownEvent;
         
-        [Networked] public string PlayerName { get; set; }
+        [Networked] private NetworkString<_8> PlayerName { get; set; }
+        public TextMeshProUGUI nameTagText;
         [Networked] public Color PlayerColor { get; set; }
         [SerializeField] private float speed = 2f;
         
@@ -31,11 +32,12 @@ namespace GNW.PlayerController
 
         private bool _initInfoSynced = false;
         
-        private ChatUI _chatUI;
+        private ChatInputUI _chatInputUI;
+        private ChatManager _chatManager;
 
         public event Action<int> OnTakeDamageEvent; 
-        public static event Action<string, NetworkId> OnPlayerSpawnEvent;
-        
+
+        private ChangeDetector _changeDetector;
 
         private void Awake()
         {
@@ -43,18 +45,34 @@ namespace GNW.PlayerController
             _ren = GetComponentInChildren<Renderer>();
             _gm = FindObjectOfType<GNW.GameManager.GameManager>();
             
-            _chatUI = FindObjectOfType<ChatUI>();
-            if (_chatUI != null)
+            _chatInputUI = FindObjectOfType<ChatInputUI>();
+            if (_chatInputUI != null)
             {
-                _chatUI.OnMesageSent += SendChatMessage;
+                _chatInputUI.OnMesageSent += SendChatInputMessage;
             }
             else
             {
                 Debug.LogWarning("No Chat Found");
             }
+
+            _chatManager = FindObjectOfType<ChatManager>();
+            if (_chatManager == null)
+            {
+                Debug.LogWarning("No ChatManager Found");
+            }
         }
 
         public override void Spawned()
+        {
+           
+            _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            
+            InitializeLocalPlayer();
+
+            
+        }
+
+        private void InitializeLocalPlayer()
         {
             if (HasStateAuthority) // only the server set the color
             {
@@ -64,47 +82,65 @@ namespace GNW.PlayerController
                     Random.Range(0f, 1f),
                     1f
                 );
-
-                PlayerName = "Player: " + Random.Range(0, 1000);
-
+                
             }
             
+            if (Runner.LocalPlayer == Object.InputAuthority)
+            {
+                var nickname = GlobalManagers.Instance.GameManager.LocalPlayerName;
+                RPC_SetName(nickname);
+                Debug.Log("This Player Spawned " + PlayerName + " " + Object.InputAuthority.PlayerId);
+            }
+            else
+            {
+                Debug.Log("Other Player Spawned " + PlayerName + " " + Object.InputAuthority.PlayerId);
+                SendChatInputMessage(PlayerName + " Joined.");
+                SetPlayerNickNameText(PlayerName);
+            }
+
         }
         
-        public void SetPlayerName(string name)
-        {
-            if (HasStateAuthority) // Only allow the player to set their own name
-            {
-                PlayerName = name;
-                // Update the name tag immediately
-                GetComponent<NameTag>().UpdateNameTag(PlayerName);
-            }
-        }
-
-
         private void UpdateInfo()
         {
             if (_ren != null && !_initInfoSynced)
             {
                 _ren.material.color = PlayerColor;
-                GetComponent<NameTag>().UpdateNameTag(PlayerName);
                 _initInfoSynced = true;
             }
+        }
+        
+        public override void FixedUpdateNetwork()
+        {
+            MoveHandler();
+            ShootHandler();
         }
 
         public override void Render()
         {
             UpdateInfo();
+
+            foreach (var change in _changeDetector.DetectChanges(this))
+            {
+                switch (change)
+                {
+                    case nameof(PlayerName):
+                        SetPlayerNickNameText(PlayerName);
+                        break;
+                }
+            }
         }
 
-        public override void FixedUpdateNetwork()
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+        private void RPC_SetName(string nameStr)
         {
-           MoveHandler();
-           ShootHandler();
+            PlayerName = nameStr;
         }
         
+        private void SetPlayerNickNameText(NetworkString<_8> nameStr)
+        {
+            nameTagText.text = nameStr + " " + Object.InputAuthority.PlayerId;
+        }
         
-
         public void MoveHandler()
         {
             if (!GetInput(out NetworkInputData data)) return;
@@ -113,8 +149,6 @@ namespace GNW.PlayerController
             _cc.Move(speed * data.Direction * Runner.DeltaTime);
             
             if (data.buttons.IsSet(NetworkInputData.JUMPBUTTON) && _cc.Grounded) _cc.Jump();
-
-            
         }
 
         public void ShootHandler()
@@ -127,7 +161,6 @@ namespace GNW.PlayerController
                 OnFireCooldownEvent?.Invoke(_canShoot); 
             }
             
-            //if (!HasInputAuthority || !FireRateTT.ExpiredOrNotRunning(Runner)) return;
             if (!FireRateTT.ExpiredOrNotRunning(Runner)) return;
             
             if (data.Direction.sqrMagnitude > 0)
@@ -141,6 +174,7 @@ namespace GNW.PlayerController
             if (data.buttons.IsSet(NetworkInputData.SHOOTBUTTON))
             {
                 FireRateTT = TickTimer.CreateFromSeconds(Runner, _fireRate);
+                Debug.Log(PlayerName + " " + Object.InputAuthority.PlayerId + " Shoots!");
                 
                 if (Runner.IsServer)
                 {
@@ -153,7 +187,6 @@ namespace GNW.PlayerController
                 }
             }
         }
-        
 
         private Player FindNearestPlayer()
         {
@@ -183,11 +216,20 @@ namespace GNW.PlayerController
             OnTakeDamageEvent?.Invoke(dmg);
         }
         
-        private void SendChatMessage(string message)
+        private void SendChatInputMessage(string message)
         {
-            _chatUI.RPC_AddToChatHistory(PlayerName + ": " + message);
+            if (Runner.LocalPlayer == Object.InputAuthority)
+            {
+                RPC_SendChat(PlayerName + ": " + message);
+            }
         }
         
+        [Rpc]
+        public void RPC_SendChat(string message)
+        {
+            _chatManager.InstantiateChat(message);
+            //_chatManager.RPC_AddToChatHistory(message);
+        }
+
     }
 }
-
