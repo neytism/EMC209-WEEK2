@@ -37,8 +37,6 @@ namespace GNW.UIManager
            
             OnStartGameButtonEvent += HideStartButtons;
             Player.OnFireCooldownEvent += UpdateFireCooldownUI;
-            Player.OnWinEvent += ShowWinPanel;
-            Player.OnLoseEvent += ShowLosePanel;
         }
         
         private void StartGame(GameMode mode)
@@ -73,7 +71,7 @@ namespace GNW.UIManager
             }
         }
 
-        private void ShowPanel(bool isWin)
+        public void ShowPanel(bool isWin)
         {
             _gameFinishHolder.SetActive(true);
             
@@ -82,11 +80,12 @@ namespace GNW.UIManager
            
         }
 
-        private void ShowWinPanel()
+        public void ShowWinPanel()
         {
             ShowPanel(true);
+            
         }
-        private void ShowLosePanel()
+        public void ShowLosePanel()
         {
             ShowPanel(false);
         }

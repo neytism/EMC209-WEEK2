@@ -1,23 +1,16 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using GNW.InputData;
 using GNW.Projectile;
 using TMPro;
-using Unity.VisualScripting;
 
 namespace GNW.PlayerController
 {
     public class Player : NetworkBehaviour, ICombat
     {
         public static event Action<bool> OnFireCooldownEvent;
-        public static event Action OnWinEvent;
-        public static event Action OnLoseEvent;
-        
-        public static event Action<bool> OnGameFinishEvent;
         
         [Networked] private NetworkString<_8> PlayerName { get; set; }
         public TextMeshProUGUI nameTagText;
@@ -32,6 +25,7 @@ namespace GNW.PlayerController
         private Vector3 _firePoint = Vector3.forward * 2;
         
         private NetworkCharacterController _cc;
+        private UIManager.UIManager _um;
         private Renderer _ren;
         private GNW.GameManager.GameManager _gm;
 
@@ -47,13 +41,18 @@ namespace GNW.PlayerController
         [SerializeField] private Animator _anim;
         private static readonly int IsMoving = Animator.StringToHash("IsMoving");
 
-        private bool _isWinner = false;
 
         private void Awake()
         {
             _cc = GetComponent<NetworkCharacterController>();
             _ren = GetComponentInChildren<Renderer>();
             _gm = FindObjectOfType<GNW.GameManager.GameManager>();
+            _um = FindObjectOfType<UIManager.UIManager>();
+            
+            if (_um == null) 
+            {
+                Debug.LogWarning("No UI Manager Found");
+            }
             
             _chatInputUI = FindObjectOfType<ChatInputUI>();
             if (_chatInputUI != null)
@@ -243,7 +242,7 @@ namespace GNW.PlayerController
             }
         }
         
-        [Rpc]
+        [Rpc(RpcSources.All, RpcTargets.All)]
         public void RPC_SendChat(string message)
         {
             _chatManager.InstantiateChat(message);
@@ -252,30 +251,33 @@ namespace GNW.PlayerController
 
         public void ReachGoal()
         {
-            
+            if (HasInputAuthority)
+            {
                 RPC_SendWinner();
-                RPC_Test();
+            }
+           
         }
         
-//[Rpc]
-        public void RPC_SendWinner()
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer )]
+        public void RPC_SendWinner( RpcInfo info = default)
         {
-            OnWinEvent?.Invoke();
+            RPC_RelayWinner(info.Source);
         }
         
-        [Rpc(RpcSources.InputAuthority, RpcTargets.Proxies)]
-        public void RPC_Test()
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+        public void RPC_RelayWinner(PlayerRef source)
         {
-            OnLoseEvent?.Invoke();
+            if (source == Runner.LocalPlayer)
+            {
+                _um.ShowPanel(true);
+            } else
+            {
+                _um.ShowPanel(false);
+            }
+            
         }
 
-        
-        public void WinnerChecker(bool isWin)
-        {
-            OnGameFinishEvent?.Invoke(isWin);
-        }
-        
-       
+
 
     }
 }

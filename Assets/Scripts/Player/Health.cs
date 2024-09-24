@@ -53,8 +53,6 @@ namespace GNW
         }
         
         
-        
-        
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_UpdateHealthBar(int updatedHealth)
         {
