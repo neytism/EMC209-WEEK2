@@ -20,6 +20,9 @@ namespace GNW.UIManager
         [SerializeField] private Button _autoStartutton;
         [SerializeField] private TextMeshProUGUI _fireCooldownUI;
         [SerializeField] private TMP_InputField _inputName;
+        [SerializeField] private GameObject _gameFinishHolder;
+        [SerializeField] private GameObject _winPanelHolder;
+        [SerializeField] private GameObject _losePanelHolder;
 
         private void Awake()
         {
@@ -31,8 +34,11 @@ namespace GNW.UIManager
 
         private void OnEnable()
         {
+           
             OnStartGameButtonEvent += HideStartButtons;
             Player.OnFireCooldownEvent += UpdateFireCooldownUI;
+            Player.OnWinEvent += ShowWinPanel;
+            Player.OnLoseEvent += ShowLosePanel;
         }
         
         private void StartGame(GameMode mode)
@@ -66,7 +72,25 @@ namespace GNW.UIManager
                 _fireCooldownUI.text = "can't shoot";
             }
         }
-        
+
+        private void ShowPanel(bool isWin)
+        {
+            _gameFinishHolder.SetActive(true);
+            
+            _winPanelHolder.SetActive(isWin);
+            _losePanelHolder.SetActive(!isWin);
+           
+        }
+
+        private void ShowWinPanel()
+        {
+            ShowPanel(true);
+        }
+        private void ShowLosePanel()
+        {
+            ShowPanel(false);
+        }
+
     }
 
 }

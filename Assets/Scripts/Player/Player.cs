@@ -7,12 +7,17 @@ using Random = UnityEngine.Random;
 using GNW.InputData;
 using GNW.Projectile;
 using TMPro;
+using Unity.VisualScripting;
 
 namespace GNW.PlayerController
 {
     public class Player : NetworkBehaviour, ICombat
     {
         public static event Action<bool> OnFireCooldownEvent;
+        public static event Action OnWinEvent;
+        public static event Action OnLoseEvent;
+        
+        public static event Action<bool> OnGameFinishEvent;
         
         [Networked] private NetworkString<_8> PlayerName { get; set; }
         public TextMeshProUGUI nameTagText;
@@ -38,6 +43,11 @@ namespace GNW.PlayerController
         public event Action<int> OnTakeDamageEvent; 
 
         private ChangeDetector _changeDetector;
+
+        [SerializeField] private Animator _anim;
+        private static readonly int IsMoving = Animator.StringToHash("IsMoving");
+
+        private bool _isWinner = false;
 
         private void Awake()
         {
@@ -147,8 +157,17 @@ namespace GNW.PlayerController
             
             data.Direction.Normalize();
             _cc.Move(speed * data.Direction * Runner.DeltaTime);
-            
-            if (data.buttons.IsSet(NetworkInputData.JUMPBUTTON) && _cc.Grounded) _cc.Jump();
+
+            if (_anim)
+            {
+                _anim.SetBool(IsMoving, data.Direction != Vector3.zero);
+            }
+
+
+            if (data.buttons.IsSet(NetworkInputData.JUMPBUTTON) && _cc.Grounded)
+            {
+                _cc.Jump();
+            }
         }
 
         public void ShootHandler()
@@ -230,6 +249,33 @@ namespace GNW.PlayerController
             _chatManager.InstantiateChat(message);
             //_chatManager.RPC_AddToChatHistory(message);
         }
+
+        public void ReachGoal()
+        {
+            
+                RPC_SendWinner();
+                RPC_Test();
+        }
+        
+//[Rpc]
+        public void RPC_SendWinner()
+        {
+            OnWinEvent?.Invoke();
+        }
+        
+        [Rpc(RpcSources.InputAuthority, RpcTargets.Proxies)]
+        public void RPC_Test()
+        {
+            OnLoseEvent?.Invoke();
+        }
+
+        
+        public void WinnerChecker(bool isWin)
+        {
+            OnGameFinishEvent?.Invoke(isWin);
+        }
+        
+       
 
     }
 }

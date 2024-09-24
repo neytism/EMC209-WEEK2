@@ -16,6 +16,7 @@ namespace GNW.GameManager
 {
     public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
     {
+        
         private NetworkRunner _runner;
 
         [SerializeField] private NetworkPrefabRef _playerPrefab;
@@ -29,6 +30,7 @@ namespace GNW.GameManager
         private UIManager.UIManager _um;
 
         public string LocalPlayerName { get; private set; }
+
 
 
         private void Update()
