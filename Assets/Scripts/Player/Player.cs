@@ -11,6 +11,7 @@ namespace GNW.PlayerController
     public class Player : NetworkBehaviour, ICombat
     {
         public static event Action<bool> OnFireCooldownEvent;
+        public static event Action<bool> OnFinishGameEvent;
         
         [Networked] private NetworkString<_8> PlayerName { get; set; }
         public TextMeshProUGUI nameTagText;
@@ -25,7 +26,6 @@ namespace GNW.PlayerController
         private Vector3 _firePoint = Vector3.forward * 2;
         
         private NetworkCharacterController _cc;
-        private UIManager.UIManager _um;
         private Renderer _ren;
         private GNW.GameManager.GameManager _gm;
 
@@ -47,12 +47,6 @@ namespace GNW.PlayerController
             _cc = GetComponent<NetworkCharacterController>();
             _ren = GetComponentInChildren<Renderer>();
             _gm = FindObjectOfType<GNW.GameManager.GameManager>();
-            _um = FindObjectOfType<UIManager.UIManager>();
-            
-            if (_um == null) 
-            {
-                Debug.LogWarning("No UI Manager Found");
-            }
             
             _chatInputUI = FindObjectOfType<ChatInputUI>();
             if (_chatInputUI != null)
@@ -269,10 +263,10 @@ namespace GNW.PlayerController
         {
             if (source == Runner.LocalPlayer)
             {
-                _um.ShowPanel(true);
+                OnFinishGameEvent?.Invoke(true);
             } else
             {
-                _um.ShowPanel(false);
+                OnFinishGameEvent?.Invoke(false);
             }
             
         }
